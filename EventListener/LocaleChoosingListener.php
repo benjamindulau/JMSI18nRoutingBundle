@@ -55,7 +55,8 @@ class LocaleChoosingListener
         }
 
         $request = $event->getRequest();
-        if ('' !== rtrim($request->getPathInfo(), '/')) {
+        $trimmedPathInfo = trim($request->getPathInfo(), '/');
+        if ('' !== $trimmedPathInfo && preg_match('/^(' . implode('|', $this->locales) . ')/', $trimmedPathInfo)) {
             return;
         }
 
@@ -70,6 +71,6 @@ class LocaleChoosingListener
         $params = $request->query->all();
         unset($params['hl']);
 
-        $event->setResponse(new RedirectResponse($request->getBaseUrl().'/'.$locale.'/'.($params ? '?'.http_build_query($params) : '')));
+        $event->setResponse(new RedirectResponse($request->getBaseUrl().'/'.$locale.$request->getPathInfo().($params ? '?'.http_build_query($params) : '')));
     }
 }
